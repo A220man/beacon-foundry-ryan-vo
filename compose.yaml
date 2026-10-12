@@ -1,0 +1,55 @@
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.1
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: adminpassword
+      KC_HTTP_RELATIVE_PATH: /
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./deploy/keycloak-realm.json:/opt/keycloak/data/import/realm.json:ro
+      - keycloak_data:/opt/keycloak/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      ENVIRONMENT: production
+      DATABASE_URL: sqlite:///./beacon_foundry.db
+      AUTH_MODE: oidc
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_REALM: beacon-realm
+      KEYCLOAK_CLIENT_ID: beacon-client
+      PORT: 8000
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      - keycloak
+    volumes:
+      - app_data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "127.0.0.1:3000:80"
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:80/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  keycloak_data:
+  app_data:

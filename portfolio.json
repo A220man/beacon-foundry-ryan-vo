@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "name": "beacon-foundry-ryan-vo",
+  "owner": "A220man",
+  "email": "ryandtvo@gmail.com",
+  "domain": "AI/ML developer tools",
+  "summary": "Work in progress: beacon-foundry-ryan-vo",
+  "workflows": [
+    "Transcribed AGC source proofing and AST token verification",
+    "Apollo telemetry guidance law trajectory simulation and deviation detection",
+    "Benchmark ML alignment evaluation comparing heuristics and transformer representations"
+  ],
+  "auth": "oidc-keycloak-saml-broker",
+  "llm_providers": [
+    "openai-compatible",
+    "anthropic",
+    "gemini",
+    "ollama"
+  ],
+  "status": "work-in-progress"
+}
