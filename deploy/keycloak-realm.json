@@ -1,0 +1,32 @@
+{
+  "realm": "beacon-realm",
+  "enabled": true,
+  "displayName": "Beacon Foundry Realm",
+  "clients": [
+    {
+      "clientId": "beacon-client",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "redirectUris": [
+        "http://localhost:3000/*",
+        "http://127.0.0.1:3000/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      }
+    }
+  ],
+  "roles": {
+    "realm": [
+      { "name": "viewer", "description": "Read-only access to programs and benchmarks" },
+      { "name": "operator", "description": "Execute proofing and trajectory simulations" },
+      { "name": "admin", "description": "Manage audit logs and configurations" }
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+# Dependencies
+.venv/
+node_modules/
+dist/
+build/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pytest_cache/
+*.mypy_cache/
+*.ruff_cache/
+coverage/
+.coverage
+
+# Environment & Secrets
+.env
+*.db
+*.sqlite
+*.sqlite3
+
+# Agent metadata
+.antigravitycli/
+.omp/
