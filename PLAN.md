@@ -4,7 +4,7 @@ Each round completes one feature or repair. Future items are planned, not implem
 
 ## Current round
 
-core-baseline
+agc-program-comparison
 
 ## Roadmap
 
@@ -20,4 +20,19 @@ Acceptance:
 Implementation: `backend/app/main.py`, `backend/app/api/endpoints.py`, `backend/app/core/config.py`, `backend/app/core/security.py`, `backend/app/models/schemas.py`, `backend/app/services/agc_engine.py`, `backend/app/services/trajectory_engine.py`, `backend/app/services/ml_eval_runner.py`, `backend/app/services/llm_adapter.py`, `backend/app/services/database.py`, `frontend/src/App.tsx`, `frontend/src/api/client.ts`
 
 Tests: `backend/tests/test_api.py`, `backend/tests/test_agc_engine.py`, `backend/tests/test_trajectory.py`, `backend/tests/test_ml_eval.py`, `backend/tests/test_auth.py`, `frontend/src/App.test.tsx`
+
+### agc-program-comparison — AGC Program Comparison: Luminary099 vs Comanche055 Side-by-Side Diff
+
+Status: done
+
+Acceptance:
+- New endpoint /api/v1/agc/compare/{program_id} returns structured diff between LM and CM versions
+- Database stores both Luminary and Comanche program variants with metadata
+- Frontend Comparison tab renders side-by-side opcode/operand diff with anomaly highlighting
+- AST-level semantic diff identifies bank/register divergences, not just textual changes
+- Unit and integration tests for comparison engine and API
+
+Implementation: `backend/app/services/agc_engine.py`, `backend/app/services/database.py`, `backend/app/models/schemas.py`, `backend/app/api/endpoints.py`, `frontend/src/components/ComparisonViewer.tsx`, `frontend/src/api/client.ts`, `frontend/src/App.tsx`
+
+Tests: `backend/tests/test_agc_comparison.py`, `backend/tests/test_api.py`
 

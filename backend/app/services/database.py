@@ -48,6 +48,21 @@ def init_db():
     )
     """)
     
+    # Program variants table (for Luminary/Comanche comparison)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS agc_program_variants (
+        id TEXT PRIMARY KEY,
+        program_id TEXT NOT NULL,
+        craft TEXT NOT NULL,  -- 'LM' for Luminary, 'CM' for Comanche
+        variant_name TEXT NOT NULL,
+        source_code TEXT NOT NULL,
+        parsed_ast_json TEXT,  -- JSON serialized AST
+        metadata_json TEXT,    -- additional metadata (bank count, instruction count, etc.)
+        created_at TEXT NOT NULL,
+        FOREIGN KEY (program_id) REFERENCES agc_programs (id)
+    )
+    """)
+    
     # Benchmark runs
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS benchmark_runs (
@@ -128,5 +143,77 @@ def list_all_programs() -> List[Dict[str, Any]]:
         conn.close()
     return [
         {"id": r[0], "name": r[1], "craft": r[2], "description": r[3], "created_at": r[4]}
+        for r in rows
+    ]
+
+def save_program_variant(
+    variant_id: str,
+    program_id: str,
+    craft: str,
+    variant_name: str,
+    source_code: str,
+    parsed_ast_json: str,
+    metadata_json: str
+):
+    """Save a program variant (Luminary or Comanche version)"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    now = datetime.now(timezone.utc).isoformat()
+    cursor.execute(
+        """INSERT OR REPLACE INTO agc_program_variants 
+        (id, program_id, craft, variant_name, source_code, parsed_ast_json, metadata_json, created_at) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+        (variant_id, program_id, craft, variant_name, source_code, parsed_ast_json, metadata_json, now)
+    )
+    conn.commit()
+    if get_db_path() != ":memory:":
+        conn.close()
+
+def get_program_variant(variant_id: str) -> Optional[Dict[str, Any]]:
+    """Get a specific program variant"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT id, program_id, craft, variant_name, source_code, parsed_ast_json, metadata_json, created_at FROM agc_program_variants WHERE id = ?",
+        (variant_id,)
+    )
+    row = cursor.fetchone()
+    if get_db_path() != ":memory:":
+        conn.close()
+    if row:
+        return {
+            "id": row[0],
+            "program_id": row[1],
+            "craft": row[2],
+            "variant_name": row[3],
+            "source_code": row[4],
+            "parsed_ast_json": row[5],
+            "metadata_json": row[6],
+            "created_at": row[7]
+        }
+    return None
+
+def get_program_variants(program_id: str) -> List[Dict[str, Any]]:
+    """Get all variants for a program (typically Luminary and Comanche)"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT id, program_id, craft, variant_name, source_code, parsed_ast_json, metadata_json, created_at FROM agc_program_variants WHERE program_id = ? ORDER BY craft",
+        (program_id,)
+    )
+    rows = cursor.fetchall()
+    if get_db_path() != ":memory:":
+        conn.close()
+    return [
+        {
+            "id": r[0],
+            "program_id": r[1],
+            "craft": r[2],
+            "variant_name": r[3],
+            "source_code": r[4],
+            "parsed_ast_json": r[5],
+            "metadata_json": r[6],
+            "created_at": r[7]
+        }
         for r in rows
     ]

@@ -8,7 +8,8 @@
   "workflows": [
     "Transcribed AGC source proofing and AST token verification",
     "Apollo telemetry guidance law trajectory simulation and deviation detection",
-    "Benchmark ML alignment evaluation comparing heuristics and transformer representations"
+    "Benchmark ML alignment evaluation comparing heuristics and transformer representations",
+    "Side-by-side Luminary 099 vs Comanche 055 semantic program diff"
   ],
   "auth": "oidc-keycloak-saml-broker",
   "llm_providers": [

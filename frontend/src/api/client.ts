@@ -100,6 +100,58 @@ export interface AuthConfig {
   oidc_discovery_url?: string | null;
 }
 
+export interface ProgramVariant {
+  craft: string;
+  program_name: string;
+  source_code: string;
+  parsed_instructions: AGCInstruction[];
+  metadata: {
+    instruction_count?: number;
+    unique_labels?: number;
+    banks_used?: string[];
+  };
+}
+
+export interface DiffChange {
+  type: string;
+  line_number_lm: number | null;
+  line_number_cm: number | null;
+  lm_instruction: AGCInstruction | null;
+  cm_instruction: AGCInstruction | null;
+  change_category: string | null;
+  description: string;
+}
+
+export interface SemanticDivergence {
+  type: string;
+  severity: string;
+  description: string;
+  lm_value: string | number | string[] | number[];
+  cm_value: string | number | string[] | number[];
+}
+
+export interface ProgramComparisonResult {
+  program_id: string;
+  program_name: string;
+  luminary: ProgramVariant | null;
+  comanche: ProgramVariant | null;
+  diff: DiffChange[];
+  summary: Record<string, number>;
+  semantic_divergences: SemanticDivergence[];
+  timestamp: string;
+}
+
+export interface DiffChange {
+  type: string;
+  line_number_lm: number | null;
+  line_number_cm: number | null;
+  lm_instruction: AGCInstruction | null;
+  cm_instruction: AGCInstruction | null;
+  change_category: string | null;
+  description: string;
+}
+
+
 class BeaconApiClient {
   private baseUrl: string = '/api';
   private token: string | null = null;
@@ -213,6 +265,10 @@ class BeaconApiClient {
 
   async getAuditLogs(limit: number = 25, offset: number = 0): Promise<{ logs: AuditLogEntry[]; limit: number; offset: number }> {
     return this.request<{ logs: AuditLogEntry[]; limit: number; offset: number }>(`/v1/audit/logs?limit=${limit}&offset=${offset}`);
+  }
+
+  async compareProgramVariants(programId: string): Promise<ProgramComparisonResult> {
+    return this.request<ProgramComparisonResult>(`/v1/agc/compare/${programId}`);
   }
 }
 
