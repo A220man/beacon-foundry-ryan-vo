@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import {
   api, AGCProgramSummary, ProofResult, TrajectorySimulationResponse,
-  MLEvalResult, AdvisoryResponse, AuthConfig
+  MLEvalResult, AdvisoryResponse, AuthConfig,
+  ProgramComparisonResult
 } from './api/client';
 import { ProofViewer } from './components/ProofViewer';
 import { TrajectoryPlot } from './components/TrajectoryPlot';
 import { BenchmarkDashboard } from './components/BenchmarkDashboard';
 import { AdvisoryModal } from './components/AdvisoryModal';
+import { ComparisonViewer } from './components/ComparisonViewer';
 
 export const App: React.FC = () => {
   // Navigation / Tabs
-  const [activeTab, setActiveTab] = useState<'proofing' | 'trajectory' | 'benchmark' | 'audit'>('proofing');
+  const [activeTab, setActiveTab] = useState<'proofing' | 'trajectory' | 'benchmark' | 'audit' | 'comparison'>('proofing');
 
   // Auth State
   const [authConfig, setAuthConfig] = useState<AuthConfig | null>(null);
@@ -45,6 +47,9 @@ export const App: React.FC = () => {
 
   // Audit Logs State
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
+  // Comparison State
+  const [comparisonResult, setComparisonResult] = useState<ProgramComparisonResult | null>(null);
+  const [comparisonLoading, setComparisonLoading] = useState<boolean>(false);
 
   // Init auth and configuration
   useEffect(() => {
@@ -137,6 +142,18 @@ export const App: React.FC = () => {
       setAuthError(err.message || 'Failed to fetch audit log');
     }
   }
+  async function handleCompare() {
+    setComparisonLoading(true);
+    setAuthError(null);
+    try {
+      const res = await api.compareProgramVariants(selectedProgramId);
+      setComparisonResult(res);
+    } catch (err: any) {
+      setAuthError(err.message || 'Comparison failed');
+    } finally {
+      setComparisonLoading(false);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
@@ -221,6 +238,17 @@ export const App: React.FC = () => {
           }`}
         >
           Audit Logs
+        </button>
+
+        <button
+          onClick={() => { setActiveTab('comparison'); handleCompare(); }}
+          className={`py-3 px-4 text-xs font-semibold border-b-2 transition ${
+            activeTab === 'comparison'
+              ? 'border-cyan-400 text-cyan-400'
+              : 'border-transparent text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          LM vs CM Comparison
         </button>
       </nav>
 
@@ -445,6 +473,15 @@ export const App: React.FC = () => {
                 </tbody>
               </table>
             </div>
+          </div>
+        )}
+        {/* Tab 5: LM vs CM Comparison */}
+        {activeTab === 'comparison' && (
+          <div>
+            <ComparisonViewer
+              comparison={comparisonResult}
+              loading={comparisonLoading}
+            />
           </div>
         )}
       </main>

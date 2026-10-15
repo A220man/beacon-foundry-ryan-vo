@@ -5,17 +5,20 @@ from ..core.config import settings
 from ..models.schemas import (
     AGCProgram, AGCInstruction, ProofRequest, ProofResult,
     TrajectorySimulationRequest, TrajectorySimulationResponse,
-    MLEvalResult, AdvisoryRequest, AdvisoryResponse, AuditLogEntry
+    MLEvalResult, AdvisoryRequest, AdvisoryResponse, AuditLogEntry,
+    ProgramComparisonResult
 )
 from ..services.agc_engine import (
-    parse_agc_source, proof_transcription,
-    SAMPLE_WAITLIST_CODE, SAMPLE_POWERED_FLIGHT_CODE
+    parse_agc_source, proof_transcription, compare_programs,
+    SAMPLE_WAITLIST_CODE, SAMPLE_POWERED_FLIGHT_CODE,
+    SAMPLE_WAITLIST_COMANCHE, SAMPLE_POWERED_FLIGHT_COMANCHE
 )
 from ..services.trajectory_engine import run_trajectory_simulation
 from ..services.ml_eval_runner import run_ml_benchmark
 from ..services.llm_adapter import request_llm_advisory
 from ..services.database import (
-    log_audit, fetch_audit_logs, save_program, get_program, list_all_programs
+    log_audit, fetch_audit_logs, save_program, get_program, list_all_programs,
+    get_program_variants, save_program_variant
 )
 
 router = APIRouter()
@@ -87,6 +90,47 @@ def get_program_details(program_id: str, user: AuthenticatedUser = Depends(requi
         "instructions": instructions,
         "source_lines_count": len(prog["source_code"].splitlines())
     }
+
+# AGC Program Comparison endpoint
+@router.get("/v1/agc/compare/{program_id}", response_model=ProgramComparisonResult)
+def compare_program_variants(program_id: str, user: AuthenticatedUser = Depends(require_role("viewer"))):
+    """Compare Luminary (LM) and Comanche (CM) variants of an AGC program"""
+    # Get the base program
+    prog = get_program(program_id)
+    if not prog:
+        raise HTTPException(status_code=404, detail=f"Program '{program_id}' not found")
+    
+    # Check if we have stored variants
+    variants = get_program_variants(program_id)
+    
+    if len(variants) >= 2:
+        # Use stored variants
+        lm_variant = next((v for v in variants if v["craft"] == "LM"), None)
+        cm_variant = next((v for v in variants if v["craft"] == "CM"), None)
+        
+        if lm_variant and cm_variant:
+            lm_source = lm_variant["source_code"]
+            cm_source = cm_variant["source_code"]
+        else:
+            # Fallback to samples
+            lm_source, cm_source = _get_sample_sources(program_id, prog)
+    else:
+        # Use built-in samples for known programs
+        lm_source, cm_source = _get_sample_sources(program_id, prog)
+    
+    result = compare_programs(program_id, prog["name"], lm_source, cm_source)
+    log_audit(user.username, "AGC_COMPARISON", {"program_id": program_id, "summary": result["summary"]})
+    return result
+
+
+def _get_sample_sources(program_id: str, prog: dict) -> tuple[str, str]:
+    """Get sample Luminary and Comanche sources for known programs"""
+    if "waitlist" in program_id.lower():
+        return SAMPLE_WAITLIST_CODE, SAMPLE_WAITLIST_COMANCHE
+    elif "pflight" in program_id.lower() or "powered" in program_id.lower():
+        return SAMPLE_POWERED_FLIGHT_CODE, SAMPLE_POWERED_FLIGHT_COMANCHE
+    # Default: use the program's source as LM, and a slightly modified version as CM
+    return prog["source_code"], prog["source_code"].replace("Luminary", "Comanche").replace("LM", "CM")
 
 # Proofing endpoint
 @router.post("/v1/agc/proof", response_model=ProofResult)

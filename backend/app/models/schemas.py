@@ -98,7 +98,36 @@ class AdvisoryResponse(BaseModel):
 
 class AuditLogEntry(BaseModel):
     id: int
-    timestamp: str
     user_id: str
     action: str
+    timestamp: str
     details: str
+
+class ProgramVariant(BaseModel):
+    """Single program variant (Luminary or Comanche)"""
+    craft: str  # "LM" or "CM"
+    program_name: str
+    source_code: str
+    parsed_instructions: List[AGCInstruction]
+    metadata: Dict[str, Any] = {}
+
+class DiffChange(BaseModel):
+    """Single diff change entry"""
+    type: str  # "added", "removed", "modified", "unchanged"
+    line_number_lm: Optional[int] = None
+    line_number_cm: Optional[int] = None
+    lm_instruction: Optional[AGCInstruction] = None
+    cm_instruction: Optional[AGCInstruction] = None
+    change_category: Optional[str] = None  # "opcode", "operand", "label", "bank", "comment", "structure"
+    description: str
+
+class ProgramComparisonResult(BaseModel):
+    """Comparison result between Luminary and Comanche variants"""
+    program_id: str
+    program_name: str
+    luminary: Optional[ProgramVariant] = None
+    comanche: Optional[ProgramVariant] = None
+    diff: List[DiffChange]
+    summary: Dict[str, int]  # counts of added, removed, modified, unchanged
+    semantic_divergences: List[Dict[str, Any]]  # bank switches, register mapping differences
+    timestamp: str

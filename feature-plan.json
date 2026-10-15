@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_feature": "core-baseline",
+  "current_feature": "agc-program-comparison",
   "features": [
     {
       "id": "core-baseline",
@@ -32,6 +32,31 @@
         "backend/tests/test_ml_eval.py",
         "backend/tests/test_auth.py",
         "frontend/src/App.test.tsx"
+      ]
+    },
+    {
+      "id": "agc-program-comparison",
+      "title": "AGC Program Comparison: Luminary099 vs Comanche055 Side-by-Side Diff",
+      "status": "done",
+      "acceptance": [
+        "New endpoint /api/v1/agc/compare/{program_id} returns structured diff between LM and CM versions",
+        "Database stores both Luminary and Comanche program variants with metadata",
+        "Frontend Comparison tab renders side-by-side opcode/operand diff with anomaly highlighting",
+        "AST-level semantic diff identifies bank/register divergences, not just textual changes",
+        "Unit and integration tests for comparison engine and API"
+      ],
+      "implementation": [
+        "backend/app/services/agc_engine.py",
+        "backend/app/services/database.py",
+        "backend/app/models/schemas.py",
+        "backend/app/api/endpoints.py",
+        "frontend/src/components/ComparisonViewer.tsx",
+        "frontend/src/api/client.ts",
+        "frontend/src/App.tsx"
+      ],
+      "tests": [
+        "backend/tests/test_agc_comparison.py",
+        "backend/tests/test_api.py"
       ]
     }
   ]
