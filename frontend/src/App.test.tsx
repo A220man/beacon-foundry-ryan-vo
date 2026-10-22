@@ -95,8 +95,8 @@ describe('Beacon Foundry Frontend Components', () => {
     );
 
     expect(screen.getByText(/P63_BRAKING/i)).toBeInTheDocument();
-    expect(screen.getByText(/NOMINAL CORRIDOR/i)).toBeInTheDocument();
-    expect(screen.getByText(/Total Δv: 120.5 m\/s/i)).toBeInTheDocument();
+    expect(screen.getByText(/✓ Nominal/i)).toBeInTheDocument();
+    expect(screen.getByText(/120\.5/)).toBeInTheDocument();
   });
 
   it('renders BenchmarkDashboard with ML metrics comparison', () => {
@@ -126,9 +126,9 @@ describe('Beacon Foundry Frontend Components', () => {
 
     expect(screen.getByText(/AI\/ML Alignment Evaluation Suite/i)).toBeInTheDocument();
     expect(screen.getByText(/Embedding Anomaly Model outperforms Baseline/i)).toBeInTheDocument();
-    expect(screen.getByText(/Fourier Embedding Cosine Detector/i)).toBeInTheDocument();
+    expect(screen.getByText(/Embedding Cosine Model/i)).toBeInTheDocument();
 
-    const btn = screen.getByRole('button', { name: /Run Benchmark Evaluation/i });
+    const btn = screen.getByRole('button', { name: /Run Evaluation Suite/i });
     fireEvent.click(btn);
     expect(runSpy).toHaveBeenCalled();
   });

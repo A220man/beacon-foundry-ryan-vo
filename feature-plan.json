@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_feature": "agc-program-comparison",
+  "current_feature": "scan-reference-integration",
   "features": [
     {
       "id": "core-baseline",
@@ -56,6 +56,30 @@
       ],
       "tests": [
         "backend/tests/test_agc_comparison.py",
+        "backend/tests/test_api.py"
+      ]
+    },
+    {
+      "id": "scan-reference-integration",
+      "title": "Historical Scan Reference Integration for Transcription Verification",
+      "status": "done",
+      "acceptance": [
+        "New endpoint /api/v1/agc/scan-reference/{program_id}/{page_range} fetches scan metadata from ibiblio.org",
+        "Frontend Proofing tab shows scan reference panel with page numbers and URLs",
+        "Proofing results display corresponding scan page links for each discrepancy",
+        "Offline fallback: cached scan metadata when network unavailable",
+        "Unit and integration tests for scan reference service and API"
+      ],
+      "implementation": [
+        "backend/app/services/scan_reference.py",
+        "backend/app/api/endpoints.py",
+        "backend/app/models/schemas.py",
+        "frontend/src/components/ScanReferencePanel.tsx",
+        "frontend/src/api/client.ts",
+        "frontend/src/App.tsx"
+      ],
+      "tests": [
+        "backend/tests/test_scan_reference.py",
         "backend/tests/test_api.py"
       ]
     }

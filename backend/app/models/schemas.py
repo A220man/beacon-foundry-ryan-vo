@@ -131,3 +131,33 @@ class ProgramComparisonResult(BaseModel):
     summary: Dict[str, int]  # counts of added, removed, modified, unchanged
     semantic_divergences: List[Dict[str, Any]]  # bank switches, register mapping differences
     timestamp: str
+class ScanPageReference(BaseModel):
+    """Single scan page reference"""
+    range_key: str
+    start_page: int
+    end_page: int
+    description: str
+    quality: str
+    url: str
+
+class ScanMetadata(BaseModel):
+    """Scan metadata for a program"""
+    program_id: str
+    program_name: str
+    craft: str
+    source: str
+    scan_base_url: str
+    pages: List[ScanPageReference] = []
+    fetched_at: str
+    source_type: str
+    error: Optional[str] = None
+
+class DiscrepancyScanReference(BaseModel):
+    """Scan reference for a specific discrepancy"""
+    program_id: str
+    line_number: int
+    estimated_scan_page: Optional[int] = None
+    scan_url: Optional[str] = None
+    scan_base_url: str
+    source_type: str
+    note: str
