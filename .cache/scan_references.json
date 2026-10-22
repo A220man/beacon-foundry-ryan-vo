@@ -1,0 +1,20 @@
+{
+  "comanche055-p20-p25": {
+    "program_id": "comanche055-p20-p25",
+    "program_name": "P20-P25",
+    "craft": "CM",
+    "source": "Comanche055",
+    "scan_base_url": "https://www.ibiblio.org/apollo/listings/Comanche055",
+    "pages": {
+      "p20-p25": {
+        "start_page": 0,
+        "end_page": 0,
+        "description": "P20-P25.agc listing (Comanche 055)",
+        "quality": "html",
+        "url": "https://www.ibiblio.org/apollo/listings/Comanche055/P20-P25.agc.html"
+      }
+    },
+    "fetched_at": "2026-10-22T02:24:54.842703+00:00",
+    "source_type": "catalog"
+  }
+}

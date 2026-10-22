@@ -9,6 +9,7 @@ import { TrajectoryPlot } from './components/TrajectoryPlot';
 import { BenchmarkDashboard } from './components/BenchmarkDashboard';
 import { AdvisoryModal } from './components/AdvisoryModal';
 import { ComparisonViewer } from './components/ComparisonViewer';
+import { ScanReferencePanel } from './components/ScanReferencePanel';
 
 export const App: React.FC = () => {
   // Navigation / Tabs
@@ -21,35 +22,33 @@ export const App: React.FC = () => {
 
   // Programs & Proofing State
   const [programs, setPrograms] = useState<AGCProgramSummary[]>([]);
-  const [selectedProgramId, setSelectedProgramId] = useState<string>('luminary099-waitlist');
-  const [transcriptionInput, setTranscriptionInput] = useState<string>(
-    `CA TIME1\nTC CHECKTIM\nCCS WAITEXIT\nTCF +2\nTC TASKOVER\nCHECKTIM INDEX Q\nCA 0\nAD ITEMP1\nTS L\nTC WAITLOOP\nTASKOVER EXTEND\nDTCB`
-  );
+  const [selectedProgramId, setSelectedProgramId] = useState('luminary099-waitlist');
+  const [transcriptionInput, setTranscriptionInput] = useState('CA TIME1\nTC CHECKTIM\nCCS WAITEXIT\nTCF +2');
   const [proofResult, setProofResult] = useState<ProofResult | null>(null);
-  const [proofLoading, setProofLoading] = useState<boolean>(false);
+  const [proofLoading, setProofLoading] = useState(false);
 
   // Trajectory Simulation State
-  const [burnProgram, setBurnProgram] = useState<string>('P63_BRAKING');
-  const [altitude, setAltitude] = useState<number>(15000);
-  const [velocity, setVelocity] = useState<number>(1690);
-  const [simulateFailure, setSimulateFailure] = useState<boolean>(false);
+  const [burnProgram, setBurnProgram] = useState('P63_BRAKING');
+  const [altitude, setAltitude] = useState(15000);
+  const [velocity, setVelocity] = useState(1690);
+  const [simulateFailure, setSimulateFailure] = useState(false);
   const [trajectoryRes, setTrajectoryRes] = useState<TrajectorySimulationResponse | null>(null);
-  const [trajLoading, setTrajLoading] = useState<boolean>(false);
+  const [trajLoading, setTrajLoading] = useState(false);
 
   // Benchmark State
   const [benchResult, setBenchResult] = useState<MLEvalResult | null>(null);
-  const [benchLoading, setBenchLoading] = useState<boolean>(false);
+  const [benchLoading, setBenchLoading] = useState(false);
 
   // Advisory State
   const [advisoryResult, setAdvisoryResult] = useState<AdvisoryResponse | null>(null);
-  const [advisoryLoading, setAdvisoryLoading] = useState<boolean>(false);
+  const [advisoryLoading, setAdvisoryLoading] = useState(false);
   const [selectedDiscrepancy, setSelectedDiscrepancy] = useState<any>(null);
 
   // Audit Logs State
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
   // Comparison State
   const [comparisonResult, setComparisonResult] = useState<ProgramComparisonResult | null>(null);
-  const [comparisonLoading, setComparisonLoading] = useState<boolean>(false);
+  const [comparisonLoading, setComparisonLoading] = useState(false);
 
   // Init auth and configuration
   useEffect(() => {
@@ -326,6 +325,12 @@ export const App: React.FC = () => {
                 advisory={advisoryResult}
                 loading={advisoryLoading}
                 onRequestAdvisory={handleRequestAdvisory}
+              />
+
+              {/* Historical Scan References */}
+              <ScanReferencePanel
+                programId={selectedProgramId}
+                discrepancies={proofResult?.discrepancies || []}
               />
             </div>
 

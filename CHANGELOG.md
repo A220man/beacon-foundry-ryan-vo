@@ -1,16 +1,20 @@
 # Changelog
 
-## 1.1.0 — work-in-progress checkpoint
+## 1.2.0 — work-in-progress checkpoint
 
 Partial code published for continued development. Known issues: STATUS.md.
 
-## 1.0.0 — work-in-progress checkpoint
-
-Partial code published for continued development. Known issues: STATUS.md.
-
-# Change Log
-
-All notable changes to Beacon Foundry will be documented in this file.
+## [1.1.1] - 2026-10-22
+### Added
+- Historical Scan Reference Integration for AGC transcription verification
+- New backend service `scan_reference.py` with curated catalog of 7 Apollo 11 scan references from ibiblio.org (WAITLIST, POWERED_FLIGHT_SUBROUTINES, PHASE_TABLE_MAINTENANCE, ORBITAL_INTEGRATION, TIME_OF_FREE_FALL, TJET_LAW, P20-P25)
+- REST endpoints: `/api/v1/agc/scan-reference/{program_id}`, `/api/v1/agc/scan-reference/{program_id}/discrepancy/{line_number}`, `/api/v1/agc/scan-catalog`
+- Pydantic models: `ScanMetadata`, `ScanPageReference`, `DiscrepancyScanReference`
+- Frontend `ScanReferencePanel` component integrated into Proofing tab showing scan page ranges, quality ratings, and direct links to historical scans
+- Per-discrepancy scan page estimation with direct links for verification
+- Offline fallback with local JSON cache and curated scan metadata
+- 11 new unit tests (`test_scan_reference.py`) and 4 API integration tests
+- All 58 backend tests and 4 frontend tests pass
 
 ## [1.1.0] - 2026-10-15
 ### Added

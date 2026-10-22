@@ -7,36 +7,10 @@ interface Props {
 }
 
 export const ComparisonViewer: React.FC<Props> = ({ comparison, loading }) => {
-  if (loading) {
-    return (
-      <div className="card p-6 text-center text-slate-400">
-        <div className="animate-pulse flex items-center justify-center gap-2">
-          <svg className="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-          <span>Comparing Luminary vs Comanche variants...</span>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <div className="card p-6 text-center text-slate-400"><div className="flex items-center justify-center gap-2"><div className="w-5 h-5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div><span>Comparing Luminary vs Comanche variants...</span></div></div>;
 
-  if (!comparison) {
-    return (
-      <div className="card p-6 text-center text-slate-400">
-        <div className="w-16 h-16 mx-auto mb-4 text-slate-700">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2? M12 19l-9 2" />
-          </svg>
-        </div>
-        <h3 className="text-lg font-semibold text-slate-300 mb-2">No Comparison Data</h3>
-        <p className="text-sm text-slate-500 max-w-md mx-auto">
-          Select a program from the sidebar and click "Compare Variants" to see the 
-          Luminary (LM) vs Comanche (CM) side-by-side diff.
-        </p>
-      </div>
-    );
-  }
+  if (!comparison) return <div className="card p-6 text-center text-slate-400"><div className="w-12 h-12 mx-auto mb-3 text-slate-700">📊</div><h3 className="text-lg font-semibold text-slate-300 mb-2">No Comparison Data</h3><p className="text-sm text-slate-500 max-w-md mx-auto">Select a program and click "Compare Variants" to see the LM vs CM side-by-side diff.</p></div>;
+
 
   // Summary stats
   const summary = comparison.summary;

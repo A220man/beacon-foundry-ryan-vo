@@ -6,7 +6,8 @@ from ..models.schemas import (
     AGCProgram, AGCInstruction, ProofRequest, ProofResult,
     TrajectorySimulationRequest, TrajectorySimulationResponse,
     MLEvalResult, AdvisoryRequest, AdvisoryResponse, AuditLogEntry,
-    ProgramComparisonResult
+    ProgramComparisonResult,
+    ScanMetadata, DiscrepancyScanReference, ScanPageReference
 )
 from ..services.agc_engine import (
     parse_agc_source, proof_transcription, compare_programs,
@@ -17,8 +18,13 @@ from ..services.trajectory_engine import run_trajectory_simulation
 from ..services.ml_eval_runner import run_ml_benchmark
 from ..services.llm_adapter import request_llm_advisory
 from ..services.database import (
-    log_audit, fetch_audit_logs, save_program, get_program, list_all_programs,
-    get_program_variants, save_program_variant
+    init_db, log_audit, fetch_audit_logs,
+    list_all_programs, get_program, save_program,
+    save_program_variant, get_program_variant, get_program_variants
+)
+from ..services.scan_reference import (
+    fetch_scan_metadata, get_scan_pages_for_program,
+    get_scan_reference_for_discrepancy, list_all_known_programs
 )
 
 router = APIRouter()
@@ -180,3 +186,35 @@ def get_audit(
 ):
     logs = fetch_audit_logs(limit=limit, offset=offset)
     return {"logs": logs, "limit": limit, "offset": offset}
+# Scan Reference endpoints
+@router.get("/v1/agc/scan-reference/{program_id}", response_model=ScanMetadata)
+async def get_scan_reference(program_id: str, user: AuthenticatedUser = Depends(require_role("viewer"))):
+    """Get historical scan metadata for an AGC program"""
+    metadata = await fetch_scan_metadata(program_id)
+    # Convert pages dict to list of ScanPageReference
+    pages = []
+    for key, page_info in metadata.get("pages", {}).items():
+        pages.append(ScanPageReference(
+            range_key=key,
+            start_page=page_info.get("start_page", 0),
+            end_page=page_info.get("end_page", 0),
+            description=page_info.get("description", ""),
+            quality=page_info.get("quality", "unknown"),
+            url=page_info.get("url", "")
+        ))
+    metadata["pages"] = pages
+    return metadata
+
+
+@router.get("/v1/agc/scan-reference/{program_id}/discrepancy/{line_number}", response_model=DiscrepancyScanReference)
+def get_discrepancy_scan_reference(program_id: str, line_number: int, user: AuthenticatedUser = Depends(require_role("viewer"))):
+    """Get scan reference for a specific discrepancy line"""
+    ref = get_scan_reference_for_discrepancy(program_id, line_number)
+    return ref
+
+
+@router.get("/v1/agc/scan-catalog")
+def get_scan_catalog(user: AuthenticatedUser = Depends(require_role("viewer"))):
+    """List all programs with known scan references"""
+    programs = list_all_known_programs()
+    return {"programs": programs}

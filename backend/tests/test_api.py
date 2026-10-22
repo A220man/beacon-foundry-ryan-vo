@@ -202,3 +202,84 @@ async def test_audit_log_query(app_instance):
         data = resp.json()
         assert "logs" in data
         assert isinstance(data["logs"], list)
+@pytest.mark.asyncio
+async def test_scan_reference_catalog(app_instance):
+    """Test scan catalog endpoint returns known programs"""
+    token = generate_demo_token("user-viewer", "viewer", ["viewer"])
+    async with AsyncClient(transport=ASGITransport(app=app_instance), base_url="http://test") as client:
+        resp = await client.get(
+            "/api/v1/agc/scan-catalog",
+            headers={"Authorization": f"Bearer {token}"}
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert "programs" in data
+        assert len(data["programs"]) >= 7
+        program_ids = {p["program_id"] for p in data["programs"]}
+        assert "luminary099-waitlist" in program_ids
+        assert "luminary099-powered_flight" in program_ids
+        assert "comanche055-p20-p25" in program_ids
+
+
+@pytest.mark.asyncio
+async def test_scan_reference_known_program(app_instance):
+    """Test scan reference for known program"""
+    token = generate_demo_token("user-viewer", "viewer", ["viewer"])
+    async with AsyncClient(transport=ASGITransport(app=app_instance), base_url="http://test") as client:
+        resp = await client.get(
+            "/api/v1/agc/scan-reference/luminary099-waitlist",
+            headers={"Authorization": f"Bearer {token}"}
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["program_id"] == "luminary099-waitlist"
+        assert data["program_name"] == "WAITLIST"
+        assert data["craft"] == "LM"
+        assert data["source"] == "Luminary099"
+        assert data["source_type"] == "catalog"
+        assert "pages" in data
+        assert len(data["pages"]) > 0
+        page = data["pages"][0]
+        assert page["range_key"] == "1117-1132"
+        assert page["start_page"] == 1117
+        assert page["end_page"] == 1132
+        assert "ibiblio.org" in page["url"]
+
+
+@pytest.mark.asyncio
+async def test_scan_reference_unknown_program(app_instance):
+    """Test scan reference for unknown program returns fallback"""
+    token = generate_demo_token("user-viewer", "viewer", ["viewer"])
+    async with AsyncClient(transport=ASGITransport(app=app_instance), base_url="http://test") as client:
+        resp = await client.get(
+            "/api/v1/agc/scan-reference/unknown-program-xyz",
+            headers={"Authorization": f"Bearer {token}"}
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["program_id"] == "unknown-program-xyz"
+        assert data["source_type"] == "fallback"
+        assert "error" in data
+
+
+@pytest.mark.asyncio
+async def test_discrepancy_scan_reference(app_instance):
+    """Test scan reference for a specific discrepancy line"""
+    token = generate_demo_token("user-viewer", "viewer", ["viewer"])
+    async with AsyncClient(transport=ASGITransport(app=app_instance), base_url="http://test") as client:
+        resp = await client.get(
+            "/api/v1/agc/scan-reference/luminary099-waitlist/discrepancy/100",
+            headers={"Authorization": f"Bearer {token}"}
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["program_id"] == "luminary099-waitlist"
+        assert data["line_number"] == 100
+        assert "estimated_scan_page" in data
+        assert "scan_url" in data
+        assert "scan_base_url" in data
+        assert "source_type" in data
+        assert "note" in data
+        assert data["estimated_scan_page"] is not None
+        assert data["scan_url"] is not None
+        assert "ibiblio.org" in data["scan_base_url"]

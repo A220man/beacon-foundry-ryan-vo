@@ -140,6 +140,36 @@ export interface ProgramComparisonResult {
   semantic_divergences: SemanticDivergence[];
   timestamp: string;
 }
+export interface ScanPageReference {
+  range_key: string;
+  start_page: number;
+  end_page: number;
+  description: string;
+  quality: string;
+  url: string;
+}
+
+export interface ScanMetadata {
+  program_id: string;
+  program_name: string;
+  craft: string;
+  source: string;
+  scan_base_url: string;
+  pages: ScanPageReference[];
+  fetched_at: string;
+  source_type: string;
+  error?: string;
+}
+
+export interface DiscrepancyScanReference {
+  program_id: string;
+  line_number: number;
+  estimated_scan_page: number | null;
+  scan_url: string | null;
+  scan_base_url: string;
+  source_type: string;
+  note: string;
+}
 
 export interface DiffChange {
   type: string;
@@ -269,6 +299,18 @@ class BeaconApiClient {
 
   async compareProgramVariants(programId: string): Promise<ProgramComparisonResult> {
     return this.request<ProgramComparisonResult>(`/v1/agc/compare/${programId}`);
+  }
+
+  async getScanReference(programId: string): Promise<ScanMetadata> {
+    return this.request<ScanMetadata>(`/v1/agc/scan-reference/${programId}`);
+  }
+
+  async getDiscrepancyScanReference(programId: string, lineNumber: number): Promise<DiscrepancyScanReference> {
+    return this.request<DiscrepancyScanReference>(`/v1/agc/scan-reference/${programId}/discrepancy/${lineNumber}`);
+  }
+
+  async getScanCatalog(): Promise<{ programs: Array<{ program_id: string; program_name: string; craft: string; source: string; page_ranges: string[] }> }> {
+    return this.request<{ programs: Array<{ program_id: string; program_name: string; craft: string; source: string; page_ranges: string[] }> }>('/v1/agc/scan-catalog');
   }
 }
 

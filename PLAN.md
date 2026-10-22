@@ -4,7 +4,7 @@ Each round completes one feature or repair. Future items are planned, not implem
 
 ## Current round
 
-agc-program-comparison
+scan-reference-integration
 
 ## Roadmap
 
@@ -35,4 +35,19 @@ Acceptance:
 Implementation: `backend/app/services/agc_engine.py`, `backend/app/services/database.py`, `backend/app/models/schemas.py`, `backend/app/api/endpoints.py`, `frontend/src/components/ComparisonViewer.tsx`, `frontend/src/api/client.ts`, `frontend/src/App.tsx`
 
 Tests: `backend/tests/test_agc_comparison.py`, `backend/tests/test_api.py`
+
+### scan-reference-integration — Historical Scan Reference Integration for Transcription Verification
+
+Status: done
+
+Acceptance:
+- New endpoint /api/v1/agc/scan-reference/{program_id}/{page_range} fetches scan metadata from ibiblio.org
+- Frontend Proofing tab shows scan reference panel with page numbers and URLs
+- Proofing results display corresponding scan page links for each discrepancy
+- Offline fallback: cached scan metadata when network unavailable
+- Unit and integration tests for scan reference service and API
+
+Implementation: `backend/app/services/scan_reference.py`, `backend/app/api/endpoints.py`, `backend/app/models/schemas.py`, `frontend/src/components/ScanReferencePanel.tsx`, `frontend/src/api/client.ts`, `frontend/src/App.tsx`
+
+Tests: `backend/tests/test_scan_reference.py`, `backend/tests/test_api.py`
 
