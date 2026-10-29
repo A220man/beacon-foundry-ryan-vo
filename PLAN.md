@@ -51,3 +51,18 @@ Implementation: `backend/app/services/scan_reference.py`, `backend/app/api/endpo
 
 Tests: `backend/tests/test_scan_reference.py`, `backend/tests/test_api.py`
 
+### agc-ocr-correction — AGC Transcription OCR Error Detection & Correction
+
+Status: planned
+
+Acceptance:
+- OCR error pattern detection for common AGC transcription artifacts (O/0, I/1, S/5, B/8, Z/2, D/0)
+- Endpoint /api/v1/agc/ocr-correct/{program_id} returns corrected transcription with confidence scores
+- Frontend Proofing tab shows OCR correction suggestions inline with original text
+- Integration with existing proofing pipeline for automated pre-processing
+- Unit and integration tests for OCR correction engine and API
+
+Implementation: `backend/app/services/ocr_correction.py`, `backend/app/api/endpoints.py`, `backend/app/models/schemas.py`, `frontend/src/components/OCRCorrectionPanel.tsx`, `frontend/src/api/client.ts`, `frontend/src/App.tsx`
+
+Tests: `backend/tests/test_ocr_correction.py`, `backend/tests/test_api.py`
+

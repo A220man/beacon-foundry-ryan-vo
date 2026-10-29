@@ -1,8 +1,17 @@
 # Changelog
 
-## 1.2.0 — work-in-progress checkpoint
+## 1.3.0 — work-in-progress checkpoint
 
 Partial code published for continued development. Known issues: STATUS.md.
+
+## 1.2.0 — work-in-progress checkpoint
+
+Checkpoint for scan-reference-integration feature verification:
+- All backend (58) and frontend (4) tests pass
+- Scan reference service, API endpoints, and frontend panel verified functional
+- Offline cache fallback confirmed working
+- Frontend builds successfully
+- Ready for next feature: agc-ocr-correction (planned)
 
 ## [1.1.1] - 2026-10-22
 ### Added
