@@ -161,3 +161,34 @@ class DiscrepancyScanReference(BaseModel):
     scan_base_url: str
     source_type: str
     note: str
+class OCRCorrection(BaseModel):
+    """Single OCR correction suggestion"""
+    original_text: str
+    corrected_text: str
+    line_number: int
+    column_start: int
+    column_end: int
+    pattern_description: str
+    confidence: float
+    context: str
+
+
+class OCRCorrectionResult(BaseModel):
+    """Full OCR correction result"""
+    program_id: str
+    original_lines: int
+    corrections: List[OCRCorrection]
+    corrected_text: str
+    overall_confidence: float
+    corrections_applied: int
+    timestamp: str
+
+
+class OCRCorrectionSummary(BaseModel):
+    """Summary of OCR correction results"""
+    program_id: str
+    total_lines: int
+    corrections_found: int
+    overall_confidence: float
+    pattern_breakdown: Dict[str, int]
+    corrected_text_preview: str
