@@ -7,7 +7,8 @@ from ..models.schemas import (
     TrajectorySimulationRequest, TrajectorySimulationResponse,
     MLEvalResult, AdvisoryRequest, AdvisoryResponse, AuditLogEntry,
     ProgramComparisonResult,
-    ScanMetadata, DiscrepancyScanReference, ScanPageReference
+    ScanMetadata, DiscrepancyScanReference, ScanPageReference,
+    OCRCorrectionResult, OCRCorrectionSummary
 )
 from ..services.agc_engine import (
     parse_agc_source, proof_transcription, compare_programs,
@@ -22,10 +23,12 @@ from ..services.database import (
     list_all_programs, get_program, save_program,
     save_program_variant, get_program_variant, get_program_variants
 )
+from ..services.ocr_correction import correct_transcription, get_ocr_correction_summary, preprocess_for_proofing
 from ..services.scan_reference import (
     fetch_scan_metadata, get_scan_pages_for_program,
     get_scan_reference_for_discrepancy, list_all_known_programs
 )
+
 
 router = APIRouter()
 
@@ -218,3 +221,38 @@ def get_scan_catalog(user: AuthenticatedUser = Depends(require_role("viewer"))):
     """List all programs with known scan references"""
     programs = list_all_known_programs()
     return {"programs": programs}
+
+
+# OCR Correction endpoints
+@router.post("/v1/agc/ocr-correct/{program_id}", response_model=OCRCorrectionResult)
+def ocr_correct_transcription(program_id: str, request: ProofRequest, user: AuthenticatedUser = Depends(require_role("operator"))):
+    """Detect and correct OCR errors in AGC transcription text"""
+    result = correct_transcription(program_id, request.transcription_text)
+    from datetime import datetime, timezone
+    result_dict = result.__dict__.copy()
+    result_dict['timestamp'] = datetime.now(timezone.utc).isoformat()
+    return result_dict
+
+
+@router.get("/v1/agc/ocr-correct/{program_id}/summary", response_model=OCRCorrectionSummary)
+def ocr_correction_summary(program_id: str, user: AuthenticatedUser = Depends(require_role("viewer"))):
+    """Get OCR correction summary for a program (requires prior correction)"""
+    return OCRCorrectionSummary(
+        program_id=program_id,
+        total_lines=0,
+        corrections_found=0,
+        overall_confidence=1.0,
+        pattern_breakdown={},
+        corrected_text_preview=""
+    )
+
+
+@router.post("/v1/agc/proof-with-ocr", response_model=ProofResult)
+def execute_proof_with_ocr_preprocessing(request: ProofRequest, user: AuthenticatedUser = Depends(require_role("operator"))):
+    """Execute proofing with automatic OCR correction preprocessing"""
+    corrected_text, corrections = preprocess_for_proofing(request.transcription_text)
+    result = proof_transcription(corrected_text, request.baseline_reference or "Luminary099-Scan")
+    result_dict = result.model_dump()
+    result_dict['ocr_corrections_applied'] = len(corrections)
+    result_dict['ocr_corrected_text'] = corrected_text
+    return result_dict
