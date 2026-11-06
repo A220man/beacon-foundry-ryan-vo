@@ -10,7 +10,7 @@ import { BenchmarkDashboard } from './components/BenchmarkDashboard';
 import { AdvisoryModal } from './components/AdvisoryModal';
 import { ComparisonViewer } from './components/ComparisonViewer';
 import { ScanReferencePanel } from './components/ScanReferencePanel';
-
+import { OCRCorrectionPanel } from './components/OCRCorrectionPanel';
 export const App: React.FC = () => {
   // Navigation / Tabs
   const [activeTab, setActiveTab] = useState<'proofing' | 'trajectory' | 'benchmark' | 'audit' | 'comparison'>('proofing');
@@ -326,13 +326,19 @@ export const App: React.FC = () => {
                 loading={advisoryLoading}
                 onRequestAdvisory={handleRequestAdvisory}
               />
-
-              {/* Historical Scan References */}
-              <ScanReferencePanel
+              {/* OCR Correction Analysis */}
+              <OCRCorrectionPanel
                 programId={selectedProgramId}
-                discrepancies={proofResult?.discrepancies || []}
+                transcriptionText={transcriptionInput}
+                onApplyCorrections={setTranscriptionInput}
               />
-            </div>
+
+               {/* Historical Scan References */}
+               <ScanReferencePanel
+                 programId={selectedProgramId}
+                 discrepancies={proofResult?.discrepancies || []}
+               />
+             </div>
 
             <div className="lg:col-span-2">
               <ProofViewer

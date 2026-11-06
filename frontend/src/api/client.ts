@@ -170,6 +170,36 @@ export interface DiscrepancyScanReference {
   source_type: string;
   note: string;
 }
+export interface OCRCorrection {
+  original_text: string;
+  corrected_text: string;
+  line_number: number;
+  column_start: number;
+  column_end: number;
+  pattern_description: string;
+  confidence: number;
+  context: string;
+}
+
+export interface OCRCorrectionResult {
+  program_id: string;
+  original_lines: number;
+  corrections: OCRCorrection[];
+  corrected_text: string;
+  overall_confidence: number;
+  corrections_applied: number;
+  timestamp: string;
+}
+
+export interface OCRCorrectionSummary {
+  program_id: string;
+  total_lines: number;
+  corrections_found: number;
+  overall_confidence: number;
+  pattern_breakdown: Record<string, number>;
+  corrected_text_preview: string;
+}
+
 
 export interface DiffChange {
   type: string;
@@ -311,6 +341,28 @@ class BeaconApiClient {
 
   async getScanCatalog(): Promise<{ programs: Array<{ program_id: string; program_name: string; craft: string; source: string; page_ranges: string[] }> }> {
     return this.request<{ programs: Array<{ program_id: string; program_name: string; craft: string; source: string; page_ranges: string[] }> }>('/v1/agc/scan-catalog');
+  async ocrCorrectTranscription(programId: string, transcriptionText: string): Promise<OCRCorrectionResult> {
+    return this.request<OCRCorrectionResult>(`/v1/agc/ocr-correct/${programId}`, {
+      method: 'POST',
+      body: JSON.stringify({
+        transcription_text: transcriptionText,
+        baseline_reference: 'Luminary099-Scan'
+      })
+    });
+  }
+
+  async getOcrCorrectionSummary(programId: string): Promise<OCRCorrectionSummary> {
+    return this.request<OCRCorrectionSummary>(`/v1/agc/ocr-correct/${programId}/summary`);
+  }
+
+  async proofWithOcrPreprocessing(transcriptionText: string, baselineRef: string = 'Luminary099-Scan'): Promise<ProofResult> {
+    return this.request<ProofResult>('/v1/agc/proof-with-ocr', {
+      method: 'POST',
+      body: JSON.stringify({
+        transcription_text: transcriptionText,
+        baseline_reference: baselineRef
+      })
+    });
   }
 }
 
