@@ -4,7 +4,7 @@ Each round completes one feature or repair. Future items are planned, not implem
 
 ## Current round
 
-scan-reference-integration
+agc-ocr-correction
 
 ## Roadmap
 
@@ -53,7 +53,7 @@ Tests: `backend/tests/test_scan_reference.py`, `backend/tests/test_api.py`
 
 ### agc-ocr-correction — AGC Transcription OCR Error Detection & Correction
 
-Status: planned
+Status: in_progress
 
 Acceptance:
 - OCR error pattern detection for common AGC transcription artifacts (O/0, I/1, S/5, B/8, Z/2, D/0)

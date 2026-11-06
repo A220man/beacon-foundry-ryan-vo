@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_feature": "scan-reference-integration",
+  "current_feature": "agc-ocr-correction",
   "features": [
     {
       "id": "core-baseline",
@@ -86,7 +86,7 @@
     {
       "id": "agc-ocr-correction",
       "title": "AGC Transcription OCR Error Detection & Correction",
-      "status": "planned",
+      "status": "in_progress",
       "acceptance": [
         "OCR error pattern detection for common AGC transcription artifacts (O/0, I/1, S/5, B/8, Z/2, D/0)",
         "Endpoint /api/v1/agc/ocr-correct/{program_id} returns corrected transcription with confidence scores",
