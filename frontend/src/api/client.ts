@@ -341,6 +341,8 @@ class BeaconApiClient {
 
   async getScanCatalog(): Promise<{ programs: Array<{ program_id: string; program_name: string; craft: string; source: string; page_ranges: string[] }> }> {
     return this.request<{ programs: Array<{ program_id: string; program_name: string; craft: string; source: string; page_ranges: string[] }> }>('/v1/agc/scan-catalog');
+  }
+
   async ocrCorrectTranscription(programId: string, transcriptionText: string): Promise<OCRCorrectionResult> {
     return this.request<OCRCorrectionResult>(`/v1/agc/ocr-correct/${programId}`, {
       method: 'POST',

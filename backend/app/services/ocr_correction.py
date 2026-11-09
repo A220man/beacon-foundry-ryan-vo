@@ -238,7 +238,7 @@ def get_ocr_correction_summary(result: OCRCorrectionResult) -> Dict[str, Any]:
     }
 
 
-async def preprocess_for_proofing(transcription_text: str) -> Tuple[str, List[OCRCorrection]]:
+def preprocess_for_proofing(transcription_text: str) -> Tuple[str, List[OCRCorrection]]:
     """
     Preprocess transcription for proofing pipeline.
     Returns corrected text and list of corrections applied.

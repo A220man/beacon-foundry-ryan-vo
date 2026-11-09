@@ -132,11 +132,10 @@ def test_get_ocr_correction_summary():
     assert summary["overall_confidence"] > 0.8
 
 
-@pytest.mark.asyncio
-async def test_preprocess_for_proofing():
+def test_preprocess_for_proofing():
     """Test preprocessing for proofing pipeline"""
     text = "CA TIME1O\nTC TIME1I\n"
-    corrected_text, corrections = await preprocess_for_proofing(text)
+    corrected_text, corrections = preprocess_for_proofing(text)
     assert "TIME10" in corrected_text
     assert "TIME11" in corrected_text
     assert len(corrections) >= 2
