@@ -88,13 +88,27 @@ def detect_ocr_errors(text: str) -> List[OCRCorrection]:
     lines = text.splitlines()
     
     for line_num, line in enumerate(lines, 1):
-        # Skip comments
-        if line.strip().startswith('#') or not line.strip():
+        # Skip fully blank lines and lines that are entirely a comment
+        if not line.strip():
             continue
-            
+
+        # Mask inline comments before matching so OCR patterns never fire on
+        # comment text. The mask preserves string length and character
+        # positions (comment chars replaced with spaces), so column offsets
+        # reported by the regex still line up with the original line used by
+        # apply_corrections(). Matches that begin at or after the comment
+        # marker are therefore skipped automatically.
+        hash_pos = line.find('#')
+        if hash_pos == 0:
+            continue  # entire line is a comment
+        if hash_pos > 0:
+            match_line = line[:hash_pos] + ' ' * (len(line) - hash_pos)
+        else:
+            match_line = line
+
         # Apply each confusion pattern
         for pattern, replacement, description, confidence in OCR_CONFUSION_PATTERNS:
-            for match in re.finditer(pattern, line):
+            for match in re.finditer(pattern, match_line):
                 original = match.group(0)
                 corrected = re.sub(pattern, replacement, original)
                 
@@ -103,7 +117,7 @@ def detect_ocr_errors(text: str) -> List[OCRCorrection]:
                     continue
                     
                 # Validate correction makes sense in context
-                if not _is_valid_correction(original, corrected, line, match.start(), match.end()):
+                if not _is_valid_correction(original, corrected, match_line, match.start(), match.end()):
                     continue
                 
                 corrections.append(OCRCorrection(
