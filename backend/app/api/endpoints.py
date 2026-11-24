@@ -237,13 +237,29 @@ def ocr_correct_transcription(program_id: str, request: ProofRequest, user: Auth
 @router.get("/v1/agc/ocr-correct/{program_id}/summary", response_model=OCRCorrectionSummary)
 def ocr_correction_summary(program_id: str, user: AuthenticatedUser = Depends(require_role("viewer"))):
     """Get OCR correction summary for a program (requires prior correction)"""
-    return OCRCorrectionSummary(
+    from datetime import datetime, timezone
+    from ..services.ocr_correction import OCRCorrection, OCRCorrectionResult, get_ocr_correction_summary
+
+    # Construct a minimal result from available program data.
+    # In a full implementation, this would use stored correction results from a prior
+    # ocr_correct_transcription run. The service function extracts pattern statistics
+    # from the correction results.
+    minimal_result: OCRCorrectionResult = OCRCorrectionResult(
         program_id=program_id,
-        total_lines=0,
-        corrections_found=0,
-        overall_confidence=1.0,
-        pattern_breakdown={},
-        corrected_text_preview=""
+        original_lines=0,
+        corrections=[],
+        corrected_text="",
+        overall_confidence=0.0,
+        corrections_applied=0
+    )
+    summary_dict = get_ocr_correction_summary(minimal_result)
+    return OCRCorrectionSummary(
+        program_id=summary_dict["program_id"],
+        total_lines=summary_dict["total_lines"],
+        corrections_found=summary_dict["corrections_found"],
+        overall_confidence=summary_dict["overall_confidence"],
+        pattern_breakdown=summary_dict["pattern_breakdown"],
+        corrected_text_preview=summary_dict["corrected_text_preview"]
     )
 
 
