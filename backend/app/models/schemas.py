@@ -66,6 +66,7 @@ class TrajectorySimulationResponse(BaseModel):
     notes: List[str]
 
 class MLEvalRequest(BaseModel):
+    model_config = {'protected_namespaces': ()}
     model_types: List[str] = ["heuristic_baseline", "fourier_embedding"]
     sample_size: int = 40
 
